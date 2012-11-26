@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<settings>
+	<category id="general" label="On Send">
+		<setting id="override_destination" type="bool" label="Send if destination in use" default="true" />
+		<setting id="pause_destination" type="bool" label="Pause Destination" default="false"  />
+	</category>
+</settings>

@@ -1,34 +1,74 @@
 import xbmc
+import xbmcgui
 import json
 import urllib2
+import time
 import resources.lib.utils as utils
+from resources.lib.hostmanager import HostManager,XbmcHost
 
-class Neighborhood:
-
+class SendTo:
+    host_manager = None
+    
+    def __init__(self):
+        #get list of all the hosts
+        self.host_manager = HostManager()
+        
     def run(self):
-        utils.log("Running addon")
+        #figure out what xbmc to send to
+        selected_xbmc = xbmcgui.Dialog().select("Select instance",self.host_manager.listHosts())
 
-        #get the currently playing file
-        player = self.getJSON("Player.GetActivePlayers",'{}')
-        
-        current_player = player[0]['playerid']
-        utils.log("Current Player: " + player[0]['type'])
+        if(selected_xbmc != -1):
+            #get the address of the host
+            xbmc_host = self.host_manager.getHost(selected_xbmc)
 
-        #get the properties
-        player_props = self.getJSON("Player.GetProperties",'{"playerid":' + str(current_player) + ', "properties":["percentage"]}')
-        utils.log(str(player_props['percentage']))
-        
+            if(utils.getSetting("override_destination") == 'false'):
+                #check if the backend is currently playing something
+                playing_backend = self.remoteJSON(xbmc_host,'Player.GetActivePlayers','{}')
+
+                if(len(playing_backend) != 0):
+                    xbmcgui.Dialog().ok("SendTo",xbmc_host.name + " is in use","Programs settings do not allow override")
+                else:
+                    self.sendTo(xbmc_host)
+            else:
+                self.sendTo(xbmc_host)
+
+    def sendTo(self,xbmc_host):
+        #get the local playing file
+        player = self.localJSON("Player.GetActivePlayers",'{}')
+        current_player = str(player[0]['playerid'])
+           
+        #get the percentage played
+        player_props = self.localJSON("Player.GetProperties",'{"playerid":' + current_player + ', "properties":["percentage"]}')
+            
         #get the currently playing file
-        playing_file = self.getJSON("Player.GetItem",'{"playerid":' + str(current_player) + ',"properties":["file"]}')
-        utils.log(playing_file['item']['file'])
+        playing_file = self.localJSON("Player.GetItem",'{"playerid":' + current_player + ',"properties":["file"]}')
+        utils.log("Sending " + playing_file['item']['file'] + " to " + xbmc_host.name)
 
         #send this to the other instance
-        self.sendJSON("Player.Open",'{"item": {"file":"' + playing_file['item']['file'] + '"},"options":{"resume":' + str(player_props['percentage']) + '}}')
+        self.remoteJSON(xbmc_host,"Player.Open",'{"item": {"file":"' + playing_file['item']['file'] + '"},"options":{"resume":' + str(player_props['percentage']) + '}}')
 
         #stop the current player
-        #self.getJSON('Player.Stop','{"playerid":' + str(current_player) + '}')
+        self.localJSON('Player.Stop','{"playerid":' + current_player + '}')
+       
+        if(utils.getSetting("pause_destination") == "true"):
+            self.pausePlayback(xbmc_host)
 
-    def getJSON(self,query,params):
+    def pausePlayback(self,host):
+        result = self.remoteJSON(host,'Player.GetActivePlayers','{}')
+        attempt = 0
+        
+        while(len(result) == 0 and attempt < 10):
+            result = self.remoteJSON(host,'Player.GetActivePlayers','{}')
+            attempt = attempt + 1
+            time.sleep(2)
+
+        utils.log(str(result[0]['playerid']))
+        if(len(result) != 0):
+            #if the result is found, then finally pause this player
+            self.remoteJSON(host,'Player.PlayPause','{"playerid":' + str(result[0]['playerid']) + "}")
+            
+    
+    def localJSON(self,query,params):
         #execute the json request
         json_response = xbmc.executeJSONRPC('{ "jsonrpc" : "2.0" , "method" : "' + query + '" , "params" : ' + params + ' , "id":1 }')
 
@@ -40,16 +80,18 @@ class Neighborhood:
         else:
             return None
 
-    def sendJSON(self,query,params):
-        utils.log("sending video")
+    def remoteJSON(self,xbmc_host,query,params):
         data = '{ "jsonrpc" : "2.0" , "method" : "' + query + '" , "params" : ' + params + ' , "id":1 }'
-        utils.log(data)
         clen = len(data)
-        req = urllib2.Request("http://192.168.1.112/jsonrpc", data, {'Content-Type': 'application/json', 'Content-Length': clen})
+        
+        req = urllib2.Request("http://" + xbmc_host.address + ":" + str(xbmc_host.port) + "/jsonrpc", data, {'Content-Type': 'application/json', 'Content-Length': clen})
         f = urllib2.urlopen(req)
-        response = f.read()
-        utils.log(response)
+        response = json.loads(f.read())
         f.close()
 
+        if(response.has_key('result')):
+            return response['result']
+        else:
+            return NOne
 
-Neighborhood().run()
+SendTo().run()
