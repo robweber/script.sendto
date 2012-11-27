@@ -1,97 +1,86 @@
-import xbmc
-import xbmcgui
-import json
-import urllib2
-import time
+import xbmc,xbmcgui,xbmcplugin
+import sys
+import re
 import resources.lib.utils as utils
+from resources.lib.sendto import SendTo
 from resources.lib.hostmanager import HostManager,XbmcHost
 
-class SendTo:
+class SendGui:
+    params = {}
     host_manager = None
     
-    def __init__(self):
-        #get list of all the hosts
+    def __init__(self,params):
+        self.params = params
         self.host_manager = HostManager()
-        
+
     def run(self):
-        #figure out what xbmc to send to
-        selected_xbmc = xbmcgui.Dialog().select("Select instance",self.host_manager.listHosts())
-
-        if(selected_xbmc != -1):
-            #get the address of the host
-            xbmc_host = self.host_manager.getHost(selected_xbmc)
-
-            if(utils.getSetting("override_destination") == 'false'):
-                #check if the backend is currently playing something
-                playing_backend = self.remoteJSON(xbmc_host,'Player.GetActivePlayers','{}')
-
-                if(len(playing_backend) != 0):
-                    xbmcgui.Dialog().ok("SendTo",xbmc_host.name + " is in use","Programs settings do not allow override")
-                else:
-                    self.sendTo(xbmc_host)
-            else:
-                self.sendTo(xbmc_host)
-
-    def sendTo(self,xbmc_host):
-        #get the local playing file
-        player = self.localJSON("Player.GetActivePlayers",'{}')
-        current_player = str(player[0]['playerid'])
-           
-        #get the percentage played
-        player_props = self.localJSON("Player.GetProperties",'{"playerid":' + current_player + ', "properties":["percentage"]}')
+        mode = int(params['mode'])
+        utils.log(str(params['mode']))
+        if(mode == 0):
+            self.listHosts()
+        elif(mode == 1002):
+            self.addHost()
             
-        #get the currently playing file
-        playing_file = self.localJSON("Player.GetItem",'{"playerid":' + current_player + ',"properties":["file"]}')
-        utils.log("Sending " + playing_file['item']['file'] + " to " + xbmc_host.name)
+    def listHosts(self):
+        context_url = "XBMC.RunScript(%s,mode=%s)"
 
-        #send this to the other instance
-        self.remoteJSON(xbmc_host,"Player.Open",'{"item": {"file":"' + playing_file['item']['file'] + '"},"options":{"resume":' + str(player_props['percentage']) + '}}')
-
-        #stop the current player
-        self.localJSON('Player.Stop','{"playerid":' + current_player + '}')
-       
-        if(utils.getSetting("pause_destination") == "true"):
-            self.pausePlayback(xbmc_host)
-
-    def pausePlayback(self,host):
-        result = self.remoteJSON(host,'Player.GetActivePlayers','{}')
-        attempt = 0
+        if(len(self.host_manager.hosts) > 0):
+            #lists all hosts
+            for aHost in self.host_manager.hosts:
+                item = xbmcgui.ListItem(aHost.name,aHost.address)
+                item.addContextMenuItems([("Add Host",context_url % (sys.argv[0],1002))])
+                ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=sys.argv[0] + "?mode=1001&host=" + aHost.address,listitem=item,isFolder=False)
+        else:
+            #just list the 'add' button
+            item = xbmcgui.ListItem("Add Host")
+            ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=sys.argv[0] + "?mode=1002",listitem=item,isFolder=False)
+        xbmcplugin.endOfDirectory(int(sys.argv[1]),cacheToDisc=False)
         
-        while(len(result) == 0 and attempt < 10):
-            result = self.remoteJSON(host,'Player.GetActivePlayers','{}')
-            attempt = attempt + 1
-            time.sleep(2)
+    def addHost(self):
+        name = None
+        address = None
+        port = None
+        
+        #get the name, address, and port
+        name = self._getInput("Host Name")
+        address = self._getInput("Host Address")
+        port = self._getInput("Host Port")
 
-        utils.log(str(result[0]['playerid']))
-        if(len(result) != 0):
-            #if the result is found, then finally pause this player
-            self.remoteJSON(host,'Player.PlayPause','{"playerid":' + str(result[0]['playerid']) + "}")
+        if(name != None and address != None and port != None):
+            utils.log("Create new instance")
+
+    def _getInput(self,title):
+        result = None
+        keyboard = xbmc.Keyboard(title)
+        keyboard.doModal()
+
+        if(keyboard.isConfirmed()):
+            result = keyboard.getText()
+
+        return result
             
-    
-    def localJSON(self,query,params):
-        #execute the json request
-        json_response = xbmc.executeJSONRPC('{ "jsonrpc" : "2.0" , "method" : "' + query + '" , "params" : ' + params + ' , "id":1 }')
-
-        json_object = json.loads(json_response)
-
-        #return nothing if there was an error
-        if(json_object.has_key('result')):
-            return json_object['result']
-        else:
-            return None
-
-    def remoteJSON(self,xbmc_host,query,params):
-        data = '{ "jsonrpc" : "2.0" , "method" : "' + query + '" , "params" : ' + params + ' , "id":1 }'
-        clen = len(data)
         
-        req = urllib2.Request("http://" + xbmc_host.address + ":" + str(xbmc_host.port) + "/jsonrpc", data, {'Content-Type': 'application/json', 'Content-Length': clen})
-        f = urllib2.urlopen(req)
-        response = json.loads(f.read())
-        f.close()
-
-        if(response.has_key('result')):
-            return response['result']
+def get_params():
+    param={}
+    for item in sys.argv:
+        match = re.search('mode=(.*)',item)
+        if match:
+            param['mode'] = match.group(1)
         else:
-            return NOne
+            param['mode'] = 0
+            
+    return param
 
-SendTo().run()
+mode = 0
+params = get_params()
+
+try:
+    mode = int(params['mode'])
+except:
+    pass
+
+if mode == 1000:
+    SendTo().run()
+else:
+    #display gui
+    SendGui(params).run()

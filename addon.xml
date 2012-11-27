@@ -4,9 +4,11 @@
   <requires>
     <import addon="xbmc.python" version="2.0"/>
   </requires>
-  <extension point="xbmc.python.script" library="default.py"> 
-     <provides>executable</provides> 
-  </extension>
+  <extension point="xbmc.python.pluginsource" library="default.py">
+        
+	<provides>executable</provides>
+    
+  </extension> 
   <extension point="xbmc.addon.metadata">
     <summary lang="en">Send currently playing media to another XBMC instance</summary>
     <description lang="en">With proper skin support (important!) this addon will allow you to send currently playing media from one XBMC instance to another for continued playback.</description>
