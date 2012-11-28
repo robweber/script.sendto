@@ -32,6 +32,17 @@ class SendTo:
             else:
                 self.sendTo(xbmc_host)
 
+    #get the active player
+    #pause the active player
+    #get the percentage played and position of the current item (Player.GetProperties)
+    #get a list of all the items (Playlist.GetItems)
+    #clear the remote playlist (if playing)
+    #add this list to the remote playlist (Playlist.Add)
+    #play the remote playlist (Player.Open)
+    #seek to the position required (Player.Seek)
+    #stop the local player (Player.Stop)
+    #clear the playlist (Playlist.Clear)
+                
     def sendTo(self,xbmc_host):
         #get the local playing file
         player = self.localJSON("Player.GetActivePlayers",'{}')
