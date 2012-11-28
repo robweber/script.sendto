@@ -18,6 +18,8 @@ class SendGui:
         utils.log(str(params['mode']))
         if(mode == 0):
             self.listHosts()
+        elif (mode == 1001):
+            self.hostInfo()
         elif(mode == 1002):
             self.addHost()
             
@@ -28,13 +30,17 @@ class SendGui:
             #lists all hosts
             for aHost in self.host_manager.hosts:
                 item = xbmcgui.ListItem(aHost.name,aHost.address)
-                item.addContextMenuItems([("Add Host","Xbmc.RunScript(script.sendto,mode=1002")])
-                ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=context_url % (sys.argv[0],"mode=1001&host=" + aHost.address),listitem=item,isFolder=False)
+                item.addContextMenuItems([("Add Host","Xbmc.RunPlugin(" + sys.argv[0] + "?mode=1002)")])
+                ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=context_url % (sys.argv[0],"mode=1001&host=" + aHost.address),listitem=item,isFolder=True)
         else:
             #just list the 'add' button
             item = xbmcgui.ListItem("Add Host")
             ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=context_url % (sys.argv[0],"mode=1002"),listitem=item,isFolder=False)
+            
         xbmcplugin.endOfDirectory(int(sys.argv[1]),cacheToDisc=False)
+
+    def hostInfo(self):
+        utils.log(params['host'])
         
     def addHost(self):
         name = None
@@ -49,7 +55,7 @@ class SendGui:
         if(name != None and address != None and port != None):
             aHost = XbmcHost(name,address,int(port))
             self.host_manager.addHost(aHost)
-            xbmc.executebuiltin('Container.Update')
+            xbmc.executebuiltin('Container.Refresh')
 
     def _getInput(self,title):
         result = None
@@ -65,11 +71,17 @@ class SendGui:
 def get_params():
     param={}
     for item in sys.argv:
+        #match mode
         match = re.search('mode=(.*)',item)
         if match:
             param['mode'] = match.group(1)
         else:
             param['mode'] = 0
+
+        #match host
+        match = re.search('host=(.*)',item)
+        if match:
+            param['host'] = match.group(1)
             
     return param
 
