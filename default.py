@@ -22,18 +22,18 @@ class SendGui:
             self.addHost()
             
     def listHosts(self):
-        context_url = "XBMC.RunScript(%s,mode=%s)"
+        context_url = "%s?%s"
 
         if(len(self.host_manager.hosts) > 0):
             #lists all hosts
             for aHost in self.host_manager.hosts:
                 item = xbmcgui.ListItem(aHost.name,aHost.address)
-                item.addContextMenuItems([("Add Host",context_url % (sys.argv[0],1002))])
-                ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=sys.argv[0] + "?mode=1001&host=" + aHost.address,listitem=item,isFolder=False)
+                item.addContextMenuItems([("Add Host","Xbmc.RunScript(script.sendto,mode=1002")])
+                ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=context_url % (sys.argv[0],"mode=1001&host=" + aHost.address),listitem=item,isFolder=False)
         else:
             #just list the 'add' button
             item = xbmcgui.ListItem("Add Host")
-            ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=sys.argv[0] + "?mode=1002",listitem=item,isFolder=False)
+            ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=context_url % (sys.argv[0],"mode=1002"),listitem=item,isFolder=False)
         xbmcplugin.endOfDirectory(int(sys.argv[1]),cacheToDisc=False)
         
     def addHost(self):
@@ -47,11 +47,13 @@ class SendGui:
         port = self._getInput("Host Port")
 
         if(name != None and address != None and port != None):
-            utils.log("Create new instance")
+            aHost = XbmcHost(name,address,int(port))
+            self.host_manager.addHost(aHost)
+            xbmc.executebuiltin('Container.Update')
 
     def _getInput(self,title):
         result = None
-        keyboard = xbmc.Keyboard(title)
+        keyboard = xbmc.Keyboard("",title)
         keyboard.doModal()
 
         if(keyboard.isConfirmed()):
