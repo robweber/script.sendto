@@ -28,41 +28,53 @@ class SendTo:
                 if(len(playing_backend) != 0):
                     xbmcgui.Dialog().ok("SendTo",xbmc_host.name + " is in use","Programs settings do not allow override")
                 else:
+                    #stop the remote backend
+                    self.remoteJSON(xbmc_host.address,'Player.Stop','{"playerid":' + str(playing_backend[0]['playerid']) + '}')
+
+                    #send the file
                     self.sendTo(xbmc_host)
             else:
                 self.sendTo(xbmc_host)
-
-    #get the active player
-    #pause the active player
-    #get the percentage played and position of the current item (Player.GetProperties)
-    #get a list of all the items (Playlist.GetItems)
-    #clear the remote playlist (if playing)
-    #add this list to the remote playlist (Playlist.Add)
-    #play the remote playlist (Player.Open)
-    #seek to the position required (Player.Seek)
-    #stop the local player (Player.Stop)
-    #clear the playlist (Playlist.Clear)
                 
     def sendTo(self,xbmc_host):
-        #get the local playing file
-        player = self.localJSON("Player.GetActivePlayers",'{}')
-        current_player = str(player[0]['playerid'])
-           
-        #get the percentage played
-        player_props = self.localJSON("Player.GetProperties",'{"playerid":' + current_player + ', "properties":["percentage"]}')
+        #check if we are playing a file at all
+        localPlayer = xbmc.Player()
+
+        if(localPlayer.isPlaying()):
+            #pause the playing file
+            #localPlayer.pause()
             
-        #get the currently playing file
-        playing_file = self.localJSON("Player.GetItem",'{"playerid":' + current_player + ',"properties":["file"]}')
-        utils.log("Sending " + playing_file['item']['file'] + " to " + xbmc_host.name)
+            #get the player/playlist id
+            jsonResult = self.localJSON("Player.GetActivePlayers",'{}')
+            playerid = str(jsonResult[0]['playerid'])
+           
+            #get the percentage played and position
+            player_props = self.localJSON("Player.GetProperties",'{"playerid":' + playerid + ', "properties":["percentage","position"]}')
 
-        #send this to the other instance
-        self.remoteJSON(xbmc_host,"Player.Open",'{"item": {"file":"' + playing_file['item']['file'] + '"},"options":{"resume":' + str(player_props['percentage']) + '}}')
+            #get a list of all items in the playlist
+            playlist = self.localJSON("Playlist.GetItems",'{"playlistid":' + playerid + ',"properties":["file"]}')
 
-        #stop the current player
-        self.localJSON('Player.Stop','{"playerid":' + current_player + '}')
-       
-        if(utils.getSetting("pause_destination") == "true"):
+            #add these files to the other playlist
+            self.remoteJSON(xbmc_host,'Playlist.Clear','{"playlistid": ' + playerid + '}')
+            for aFile in playlist['items']:
+                self.remoteJSON(xbmc_host,'Playlist.Add','{"playlistid":' + playerid + ',"item": {"file": "' + aFile['file'] + '" } }')
+
+            #play remote playlist
+            self.remoteJSON(xbmc_host,"Player.Open",'{"item": { "playlistid": ' + playerid + ',"position":' + str(player_props['position']) + ' } }')
+
+            #pause the player
             self.pausePlayback(xbmc_host)
+
+            #seek to the correct spot
+            self.remoteJSON(xbmc_host,"Player.Seek",'{"playerid":' + playerid + ', "value":' + str(player_props['percentage']) + '}')
+
+            #stop the current player
+            self.localJSON('Player.Stop','{"playerid":' + playerid + '}')
+            self.localJSON('Playlist.Clear','{"playlistid": ' + playerid + '}')
+
+            #unpause playback, if necessary
+            if(utils.getSetting("pause_destination") == "false"):
+                self.pausePlayback(xbmc_host)
 
     def pausePlayback(self,host):
         result = self.remoteJSON(host,'Player.GetActivePlayers','{}')
@@ -94,7 +106,7 @@ class SendTo:
     def remoteJSON(self,xbmc_host,query,params):
         data = '{ "jsonrpc" : "2.0" , "method" : "' + query + '" , "params" : ' + params + ' , "id":1 }'
         clen = len(data)
-        
+        utils.log(data)
         req = urllib2.Request("http://" + xbmc_host.address + ":" + str(xbmc_host.port) + "/jsonrpc", data, {'Content-Type': 'application/json', 'Content-Length': clen})
         f = urllib2.urlopen(req)
         response = json.loads(f.read())

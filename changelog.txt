@@ -1,5 +1,7 @@
 Version 0.0.3
 
+support added for sending playlists
+
 started gui
 
 Version 0.0.2
