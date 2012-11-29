@@ -11,7 +11,7 @@
   </extension> 
   <extension point="xbmc.addon.metadata">
     <summary lang="en">Send currently playing media to another XBMC instance</summary>
-    <description lang="en">With proper skin support (important!) this addon will allow you to send currently playing media from one XBMC instance to another for continued playback.</description>
+    <description lang="en">With proper skin support (important!) this addon will allow you to send currently playing media from one XBMC instance to another for continued playback. In order for this to work you must enable JSONRPC on each host and all instances must have access to the same media sources. The addon will send your entire queued playlist for the currently playing media to the selected instance. </description>
     <platform>all</platform>
     <language></language>
   </extension>
