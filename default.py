@@ -1,5 +1,6 @@
 import xbmc,xbmcgui,xbmcplugin
 import sys
+import urlparse
 import re
 import resources.lib.utils as utils
 from resources.lib.sendto import SendTo
@@ -28,10 +29,12 @@ class SendGui:
 
         if(len(self.host_manager.hosts) > 0):
             #lists all hosts
+            index = 0
             for aHost in self.host_manager.hosts:
                 item = xbmcgui.ListItem(aHost.name,aHost.address)
-                item.addContextMenuItems([("Add Host", "Xbmc.RunPlugin(%s?%s)" % (sys.argv[0],"mode=1002"))])
-                ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=context_url % (sys.argv[0],"mode=1001&host=" + aHost.address),listitem=item,isFolder=True)
+                item.addContextMenuItems([("Add Host", "Xbmc.RunPlugin(%s?%s)" % (sys.argv[0],"mode=1002")),("Remove Host", "Xbmc.RunPlugin(%s?%s)" % (sys.argv[0],'mode=1003&host=' + str(index)))])
+                ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=context_url % (sys.argv[0],"mode=1001&host=" + str(index)),listitem=item,isFolder=True)
+                index = index + 1
         else:
             #just list the 'add' button
             item = xbmcgui.ListItem("Add Host")
@@ -41,11 +44,16 @@ class SendGui:
 
     def hostInfo(self):
         #get some information about this host
+        selectedHost = self.host_manager.getHost(int(params['host']))
 
+        if(selectedHost.isPlaying()):
+            item = xbmcgui.ListItem("Is Playing")
+            ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url="%s?%s" % (sys.argv[0],"mode=1002"),listitem=item,isFolder=False)
+        else:
+            item = xbmcgui.ListItem("Not Playing")
+            ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url="%s?%s" % (sys.argv[0],"mode=0"),listitem=item,isFolder=False)
         
         
-        item = xbmcgui.ListItem("Add Host")
-        ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url="%s?%s" % (sys.argv[0],"mode=1002"),listitem=item,isFolder=False)
         xbmcplugin.endOfDirectory(int(sys.argv[1]),cacheToDisc=False)
         
     def addHost(self):
@@ -75,21 +83,10 @@ class SendGui:
             
         
 def get_params():
-    param={}
-    for item in sys.argv:
-        #match mode
-        match = re.search('mode=(.*)',item)
-        if match:
-            param['mode'] = match.group(1)
-        else:
-            param['mode'] = 0
-
-        #match host
-        match = re.search('host=(.*)',item)
-        if match:
-            param['host'] = match.group(1)
-            
-    return param
+    args = sys.argv[2]
+    if(args.startswith('?')):
+        args = args[1:]
+    return dict(urlparse.parse_qsl(args))
 
 mode = 0
 params = get_params()
@@ -97,6 +94,7 @@ params = get_params()
 try:
     mode = int(params['mode'])
 except:
+    params['mode'] = mode
     pass
 
 if mode == 1000:
