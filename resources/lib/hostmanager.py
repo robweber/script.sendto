@@ -26,11 +26,29 @@ class XbmcHost:
         else:
             self.jsonComm = RemoteComms(self.address,self.port)
 
-    def executeJSON(query,params):
-        if(jsonComm != None):
+    def executeJSON(self,query,params):
+        if(self.jsonComm != None):
             return self.jsonComm.executeJSON(query,params)
         else:
             return None
+
+    def isPlaying(self):
+        if(self._getPlayerId() > 0):
+            return True
+        else:
+            return False
+
+    def getPlayingFile(self):
+        return "None"
+
+    def _getPlayerId(self):
+        #check if this player is actively playing something
+        check_playing = self.executeJSON('Player.GetActivePlayers','{}')
+        
+        if(len(check_playing) > 0):
+            return check_playing[0]['playerid']
+        else:
+            return -1
         
 class HostManager:
     hosts = list()

@@ -10,7 +10,7 @@ class CommsManager:
 
 class LocalComms(CommsManager):
 
-    def executeJSON(query,params):
+    def executeJSON(self,query,params):
         #execute the json request
         json_response = xbmc.executeJSONRPC('{ "jsonrpc" : "2.0" , "method" : "' + query + '" , "params" : ' + params + ' , "id":1 }')
 
@@ -30,7 +30,7 @@ class RemoteComms(CommsManager):
         self.address = address
         self.port = port
         
-    def executeJSON(query,params):
+    def executeJSON(self,query,params):
         data = '{ "jsonrpc" : "2.0" , "method" : "' + query + '" , "params" : ' + params + ' , "id":1 }'
         clen = len(data)
         utils.log(data,xbmc.LOGDEBUG)
