@@ -33,10 +33,7 @@ class XbmcHost:
             return None
 
     def isPlaying(self):
-        if(self._getPlayerId() > 0):
-            return True
-        else:
-            return False
+        return self._getPlayerId()
 
     def getPlayingFile(self):
         return "None"
@@ -45,10 +42,13 @@ class XbmcHost:
         #check if this player is actively playing something
         check_playing = self.executeJSON('Player.GetActivePlayers','{}')
         
-        if(len(check_playing) > 0):
-            return check_playing[0]['playerid']
+        if(check_playing != None):
+            if(len(check_playing) > 0):
+                return check_playing[0]['playerid']
+            else:
+                return -1
         else:
-            return -1
+            return -2
         
 class HostManager:
     hosts = list()

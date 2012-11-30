@@ -31,15 +31,20 @@ class RemoteComms(CommsManager):
         self.port = port
         
     def executeJSON(self,query,params):
+        result = None
+        
         data = '{ "jsonrpc" : "2.0" , "method" : "' + query + '" , "params" : ' + params + ' , "id":1 }'
         clen = len(data)
         utils.log(data,xbmc.LOGDEBUG)
         req = urllib2.Request("http://" + self.address + ":" + str(self.port) + "/jsonrpc", data, {'Content-Type': 'application/json', 'Content-Length': clen})
-        f = urllib2.urlopen(req)
-        response = json.loads(f.read())
-        f.close()
+        try:
+            f = urllib2.urlopen(req)
+            response = json.loads(f.read())
+            f.close()
 
-        if(response.has_key('result')):
-            return response['result']
-        else:
-            return None
+            if(response.has_key('result')):
+                result = response['result']
+        except:
+            pass
+
+        return result;

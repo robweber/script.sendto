@@ -48,12 +48,17 @@ class SendGui:
         #get some information about this host
         selectedHost = self.host_manager.getHost(int(params['host']))
 
-        if(selectedHost.isPlaying()):
-            item = xbmcgui.ListItem("Is Playing")
-            ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url="%s?%s" % (sys.argv[0],"mode=1002"),listitem=item,isFolder=False)
-        else:
+        isPlaying = selectedHost.isPlaying()
+        
+        if(isPlaying == -2):
+            item = xbmcgui.ListItem("Not Running")
+            ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url="%s?%s" % (sys.argv[0],"mode=0"),listitem=item,isFolder=False)
+        elif(isPlaying == -1):
             item = xbmcgui.ListItem("Not Playing")
             ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url="%s?%s" % (sys.argv[0],"mode=0"),listitem=item,isFolder=False)
+        else:
+            item = xbmcgui.ListItem("Is Playing")
+            ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url="%s?%s" % (sys.argv[0],"mode=1002"),listitem=item,isFolder=False)
         
         
         xbmcplugin.endOfDirectory(int(sys.argv[1]),cacheToDisc=False)
