@@ -30,17 +30,23 @@ class SendGui:
             #lists all hosts
             for aHost in self.host_manager.hosts:
                 item = xbmcgui.ListItem(aHost.name,aHost.address)
-                item.addContextMenuItems([("Add Host","Xbmc.RunPlugin(" + sys.argv[0] + "?mode=1002)")])
+                item.addContextMenuItems([("Add Host", "Xbmc.RunPlugin(%s?%s)" % (sys.argv[0],"mode=1002"))])
                 ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=context_url % (sys.argv[0],"mode=1001&host=" + aHost.address),listitem=item,isFolder=True)
         else:
             #just list the 'add' button
             item = xbmcgui.ListItem("Add Host")
-            ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=context_url % (sys.argv[0],"mode=1002"),listitem=item,isFolder=False)
+            ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url="%s?%s" % (sys.argv[0],"mode=1002"),listitem=item,isFolder=False)
             
         xbmcplugin.endOfDirectory(int(sys.argv[1]),cacheToDisc=False)
 
     def hostInfo(self):
-        utils.log(params['host'])
+        #get some information about this host
+
+        
+        
+        item = xbmcgui.ListItem("Add Host")
+        ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url="%s?%s" % (sys.argv[0],"mode=1002"),listitem=item,isFolder=False)
+        xbmcplugin.endOfDirectory(int(sys.argv[1]),cacheToDisc=False)
         
     def addHost(self):
         name = None

@@ -2,16 +2,35 @@ import xbmc
 import xbmcvfs
 import utils
 import xml.dom.minidom
+import socket
+from commsmanager import LocalComms,RemoteComms
 
 class XbmcHost:
     name = ''
     address = ''
     port = 80
-
+    jsonComm = None
+    
     def __init__(self,name,address,port):
         self.name = name
         self.address = address
         self.port = port
+
+        #figure out what kind of comms for this host
+        hostname = socket.gethostname()
+        host_address = socket.gethostbyname(hostname)
+
+        if(self.address == '127.0.0.1' or self.address == hostname or self.address == host_address):
+            #we have a 'local' host
+            self.jsonComm = LocalComms()
+        else:
+            self.jsonComm = RemoteComms(self.address,self.port)
+
+    def executeJSON(query,params):
+        if(jsonComm != None):
+            return self.jsonComm.executeJSON(query,params)
+        else:
+            return None
         
 class HostManager:
     hosts = list()
