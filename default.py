@@ -25,6 +25,8 @@ class SendGui:
             self.addHost()
         elif(mode == 1003):
             self.removeHost()
+        elif(mode == 1004):
+            self.pullMedia()
             
     def listHosts(self):
         context_url = "%s?%s"
@@ -71,7 +73,7 @@ class SendGui:
                     itemLabel = "*Playing* " + itemLabel
                     
                 item = xbmcgui.ListItem(itemLabel)
-                ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url="%s?%s" % (sys.argv[0],"mode=1002"),listitem=item,isFolder=False)
+                ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url="%s?%s" % (sys.argv[0],"mode=1004&host=" + params['host']),listitem=item,isFolder=False)
                 index = index + 1
         
         xbmcplugin.endOfDirectory(int(sys.argv[1]),cacheToDisc=False)
@@ -95,6 +97,22 @@ class SendGui:
         #remove the host from the hosts file
         self.host_manager.removeHost(int(params['host']))
         xbmc.executebuiltin('Container.Refresh')
+
+    def pullMedia(self):
+        host = int(params['host'])
+
+        action = xbmcgui.Dialog().select("Choose Action",("Move to this host","Pull only this file","Pull playlist, start here"))
+
+        if(action == 0):
+            #do a reverse SendTo
+            remote_host = self.host_manager.getHost(host)
+            SendTo().reverse(remote_host)
+        elif(action == 1):
+            #start playing only this file
+            pass
+        elif(action == 2):
+            #pull the whole list but start at this index
+            pass
 
     def _getInput(self,title):
         result = None

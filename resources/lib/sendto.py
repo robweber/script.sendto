@@ -49,7 +49,13 @@ class SendTo:
                 else:
                     #not playing anything, send as normal
                     self.sendTo(local_host,remote_host)
-                
+
+    def reverse(self,remote_host):
+        #do a regular "sendto" but reverse the local and remote hosts
+        local_host = XbmcHost("Local","127.0.0.1","8080")
+
+        self.sendTo(remote_host,local_host)
+    
     def sendTo(self,local_host,remote_host):
         
         #get the player/playlist id
@@ -61,7 +67,7 @@ class SendTo:
         #check if the player is currently paused
         if(player_props['speed'] != 0):
             #pause the playing file
-            self.localPlayer.pause()
+            self.pausePlayback(local_host)
         
         #get a list of all items in the playlist
         playlist = local_host.executeJSON("Playlist.GetItems",'{"playlistid":' + playerid + ',"properties":["file","title"]}')
@@ -81,7 +87,7 @@ class SendTo:
         remote_host.executeJSON("Player.Seek",'{"playerid":' + playerid + ', "value":' + str(player_props['percentage']) + '}')
 
         #stop the current player
-        self.localPlayer.stop()
+        local_host.executeJSON('Player.Stop','{"playerid":' + playerid + '}')
         local_host.executeJSON('Playlist.Clear','{"playlistid": ' + playerid + '}')
 
         #unpause playback, if necessary
