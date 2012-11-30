@@ -23,6 +23,8 @@ class SendGui:
             self.hostInfo()
         elif(mode == 1002):
             self.addHost()
+        elif(mode == 1003):
+            self.removeHost()
             
     def listHosts(self):
         context_url = "%s?%s"
@@ -70,6 +72,11 @@ class SendGui:
             aHost = XbmcHost(name,address,int(port))
             self.host_manager.addHost(aHost)
             xbmc.executebuiltin('Container.Refresh')
+
+    def removeHost(self):
+        #remove the host from the hosts file
+        self.host_manager.removeHost(int(params['host']))
+        xbmc.executebuiltin('Container.Refresh')
 
     def _getInput(self,title):
         result = None

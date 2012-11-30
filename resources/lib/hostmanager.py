@@ -73,6 +73,10 @@ class HostManager:
         self._sort()
         self._writeHosts()
 
+    def removeHost(self,index):
+        self.hosts.pop(index)
+        self._writeHosts()
+
     def _writeHosts(self):
         data_dir = utils.data_dir()
 
