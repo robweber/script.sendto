@@ -31,17 +31,21 @@ class SendTo:
                 remote_host = self.host_manager.getHost(selected_xbmc)
 
                 #check if the remote player is currently playing something
-                remote_player = remote_host.executeJSON('Player.GetActivePlayers','{}')
+                remote_player = remote_host.isPlaying()
 
-                if(len(remote_player) > 0 and utils.getSetting("override_destination") == 'true'):
+                if(remote_player >= 0 and utils.getSetting("override_destination") == 'true'):
                     #we need to stop the player before sending the new file
-                     remote_host.executeJSON('Player.Stop','{"playerid":' + str(remote_player[0]['playerid']) + '}')
+                     remote_host.executeJSON('Player.Stop','{"playerid":' + str(remote_player) + '}')
                      self.sendTo(local_host,remote_host)
                  
-                elif(len(remote_player) > 0 and utils.getSetting("override_destination") == "false"):
+                elif(remote_player >= 0 and utils.getSetting("override_destination") == "false"):
                     #we can't stop the player, notify the user
                     xbmcgui.Dialog().ok("SendTo",remote_host.name + " is in use","Programs settings do not allow override")
-                
+
+                elif(remote_player == -2):
+                    #catch for if the player is off
+                    xbmcgui.Dialog().ok("SendTo",remote_host.name + " is not running","Please turn on XBMC before sending media")
+                    
                 else:
                     #not playing anything, send as normal
                     self.sendTo(local_host,remote_host)
@@ -49,8 +53,7 @@ class SendTo:
     def sendTo(self,local_host,remote_host):
         
         #get the player/playlist id
-        jsonResult = local_host.executeJSON("Player.GetActivePlayers",'{}')
-        playerid = str(jsonResult[0]['playerid'])
+        playerid = local_host.isPlaying()
            
         #get the percentage played and position
         player_props = local_host.executeJSON("Player.GetProperties",'{"playerid":' + playerid + ', "properties":["percentage","position","speed"]}')
@@ -61,7 +64,7 @@ class SendTo:
             self.localPlayer.pause()
         
         #get a list of all items in the playlist
-        playlist = local_host.executeJSON("Playlist.GetItems",'{"playlistid":' + playerid + ',"properties":["file"]}')
+        playlist = local_host.executeJSON("Playlist.GetItems",'{"playlistid":' + playerid + ',"properties":["file","title"]}')
 
         #add these files to the other playlist
         remote_host.executeJSON('Playlist.Clear','{"playlistid": ' + playerid + '}')

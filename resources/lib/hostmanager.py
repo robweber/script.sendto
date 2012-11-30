@@ -35,8 +35,25 @@ class XbmcHost:
     def isPlaying(self):
         return self._getPlayerId()
 
-    def getPlayingFile(self):
-        return "None"
+    def getPlaylist(self):
+        result = {}
+        playerid = self._getPlayerId()
+
+        if(playerid >= 0):
+            items = self.executeJSON("Playlist.GetItems",'{"playlistid":' + str(playerid) + ',"properties":["file","title"]}')
+            result = items['items']
+
+        return result
+
+    def playingProperties(self):
+        result = {}
+
+        playerid = self._getPlayerId()
+
+        if(playerid >= 0):
+            result = self.executeJSON("Player.GetProperties",'{"playerid":' + str(playerid) + ', "properties":["percentage","position","speed"]}')
+
+        return result
 
     def _getPlayerId(self):
         #check if this player is actively playing something

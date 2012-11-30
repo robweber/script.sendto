@@ -57,9 +57,22 @@ class SendGui:
             item = xbmcgui.ListItem("Not Playing")
             ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url="%s?%s" % (sys.argv[0],"mode=0"),listitem=item,isFolder=False)
         else:
-            item = xbmcgui.ListItem("Is Playing")
-            ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url="%s?%s" % (sys.argv[0],"mode=1002"),listitem=item,isFolder=False)
-        
+            #get properties on the currently playing file
+            fileProps = selectedHost.playingProperties()
+            
+            #get the playlist of playing items
+            playingItems = selectedHost.getPlaylist()
+
+            index = 0
+            for aItem in playingItems:
+                itemLabel = aItem['label']
+
+                if(index == fileProps['position']):
+                    itemLabel = "*Playing* " + itemLabel
+                    
+                item = xbmcgui.ListItem(itemLabel)
+                ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url="%s?%s" % (sys.argv[0],"mode=1002"),listitem=item,isFolder=False)
+                index = index + 1
         
         xbmcplugin.endOfDirectory(int(sys.argv[1]),cacheToDisc=False)
         
