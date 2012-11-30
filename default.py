@@ -108,10 +108,16 @@ class SendGui:
             
         
 def get_params():
-    args = sys.argv[2]
-    if(args.startswith('?')):
-        args = args[1:]
-    return dict(urlparse.parse_qsl(args))
+    param = {}
+    try:
+        for i in sys.argv:
+            args = i
+            if(args.startswith('?')):
+                args = args[1:]
+            param.update(dict(urlparse.parse_qsl(args)))
+    except:
+        pass
+    return param
 
 mode = 0
 params = get_params()

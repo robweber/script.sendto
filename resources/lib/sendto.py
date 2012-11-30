@@ -53,7 +53,7 @@ class SendTo:
     def sendTo(self,local_host,remote_host):
         
         #get the player/playlist id
-        playerid = local_host.isPlaying()
+        playerid = str(local_host.isPlaying())
            
         #get the percentage played and position
         player_props = local_host.executeJSON("Player.GetProperties",'{"playerid":' + playerid + ', "properties":["percentage","position","speed"]}')
@@ -81,7 +81,7 @@ class SendTo:
         remote_host.executeJSON("Player.Seek",'{"playerid":' + playerid + ', "value":' + str(player_props['percentage']) + '}')
 
         #stop the current player
-        self.localPlayer.Stop()
+        self.localPlayer.stop()
         local_host.executeJSON('Playlist.Clear','{"playlistid": ' + playerid + '}')
 
         #unpause playback, if necessary
