@@ -112,7 +112,7 @@ class SendTo:
     def remoteJSON(self,xbmc_host,query,params):
         data = '{ "jsonrpc" : "2.0" , "method" : "' + query + '" , "params" : ' + params + ' , "id":1 }'
         clen = len(data)
-        utils.log(data)
+        utils.log(data,xbmc.LOGDEBUG)
         req = urllib2.Request("http://" + xbmc_host.address + ":" + str(xbmc_host.port) + "/jsonrpc", data, {'Content-Type': 'application/json', 'Content-Length': clen})
         f = urllib2.urlopen(req)
         response = json.loads(f.read())
