@@ -21,19 +21,20 @@ class SendTo:
             #get the address of the host
             xbmc_host = self.host_manager.getHost(selected_xbmc)
 
-            if(utils.getSetting("override_destination") == 'false'):
-                #check if the backend is currently playing something
-                playing_backend = self.remoteJSON(xbmc_host,'Player.GetActivePlayers','{}')
+            #check if the remote player is currently playing something
+            remote_player = self.remoteJSON(xbmc_host,'Player.GetActivePlayers','{}')
 
-                if(len(playing_backend) != 0):
-                    xbmcgui.Dialog().ok("SendTo",xbmc_host.name + " is in use","Programs settings do not allow override")
-                else:
-                    #stop the remote backend
-                    self.remoteJSON(xbmc_host.address,'Player.Stop','{"playerid":' + str(playing_backend[0]['playerid']) + '}')
-
-                    #send the file
-                    self.sendTo(xbmc_host)
+            if(len(remote_player) > 0 and utils.getSetting("override_destination") == 'true'):
+                #we need to stop the player before sending the new file
+                 self.remoteJSON(xbmc_host.address,'Player.Stop','{"playerid":' + str(remote_player[0]['playerid']) + '}')
+                 self.sendTo(xbmc_host)
+                 
+            elif(len(remote_player) > 0 and utils.getSetting("override_destination") == "false"):
+                #we can't stop the player, notify the user
+                xbmcgui.Dialog().ok("SendTo",xbmc_host.name + " is in use","Programs settings do not allow override")
+                
             else:
+                #not playing anything, send as normal
                 self.sendTo(xbmc_host)
                 
     def sendTo(self,xbmc_host):
@@ -69,7 +70,7 @@ class SendTo:
             self.remoteJSON(xbmc_host,"Player.Seek",'{"playerid":' + playerid + ', "value":' + str(player_props['percentage']) + '}')
 
             #stop the current player
-            self.localJSON('Player.Stop','{"playerid":' + playerid + '}')
+            localPlayer.Stop()
             self.localJSON('Playlist.Clear','{"playlistid": ' + playerid + '}')
 
             #unpause playback, if necessary
