@@ -4,6 +4,10 @@ revamped "remote override" settings check
 
 will now pause localplayback when running
 
+updated gui, added support for removing hosts and viewing currently played files
+
+updated json execution code - hosts are now smarter about themselves
+
 Version 0.0.3
 
 support added for sending playlists
