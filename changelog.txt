@@ -1,3 +1,9 @@
+Version 0.0.4
+
+revamped "remote override" settings check
+
+will now pause localplayback when running
+
 Version 0.0.3
 
 support added for sending playlists
