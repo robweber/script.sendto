@@ -1,5 +1,30 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <strings>
 	<string id="30000">SendTo</string>
+	<string id="30001">Send if destination in use</string>
+	<string id="30002">Prompt to pause destination</string>
+	<string id="30003">Title for notifications</string>
 	
+	<!-- gui information -->
+	<string id="30020">Send Notification</string>
+	<string id="30021">Add Host</string>
+	<string id="30022">Remove Host</string>
+	<string id="30023">Add Host</string>
+	<string id="30024">Not Running</string>
+	<string id="30025">Idle</string>
+	<string id="30026">Playing</string>
+	<string id="30027">Host Name</string>
+	<string id="30028">Host Address</string>
+	<string id="30029">Host Port</string>
+	<string id="30030">Choose Action</string>
+	<string id="30031">Transfer now playing</string>
+	<string id="30032">Start playing this file</string>
+	<string id="30033">Copy playlist, start here</string>
+	<string id="30034">Stop Playback</string>
+	<string id="30035">Send Notification to</string>
+	<string id="30036">Select Instance</string>
+	<string id="30037">Programs settings do not allow override</string>
+	<string id="30038">Please turn on XBMC before sending media</string>
+	<string id="30039">is in use</string>
+	<string id="30040">is not running</string>
 </strings>

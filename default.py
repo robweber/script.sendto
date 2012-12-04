@@ -38,12 +38,12 @@ class SendGui:
             index = 0
             for aHost in self.host_manager.hosts:
                 item = xbmcgui.ListItem(aHost.name,aHost.address)
-                item.addContextMenuItems([("Send Notification","Xbmc.RunPlugin(%s?%s)" % (sys.argv[0],"mode=1005&host=" + str(index))),("Add Host", "Xbmc.RunPlugin(%s?%s)" % (sys.argv[0],"mode=1002")),("Remove Host", "Xbmc.RunPlugin(%s?%s)" % (sys.argv[0],'mode=1003&host=' + str(index)))])
+                item.addContextMenuItems([(utils.getString(30020),"Xbmc.RunPlugin(%s?%s)" % (sys.argv[0],"mode=1005&host=" + str(index))),(utils.getString(30021), "Xbmc.RunPlugin(%s?%s)" % (sys.argv[0],"mode=1002")),(utils.getString(30022), "Xbmc.RunPlugin(%s?%s)" % (sys.argv[0],'mode=1003&host=' + str(index)))])
                 ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=context_url % (sys.argv[0],"mode=1001&host=" + str(index)),listitem=item,isFolder=True)
                 index = index + 1
         else:
             #just list the 'add' button
-            item = xbmcgui.ListItem("Add Host")
+            item = xbmcgui.ListItem(utils.getString(30021))
             ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url="%s?%s" % (sys.argv[0],"mode=1002"),listitem=item,isFolder=False)
             
         xbmcplugin.endOfDirectory(int(sys.argv[1]),cacheToDisc=False)
@@ -55,10 +55,10 @@ class SendGui:
         isPlaying = selectedHost.isPlaying()
         
         if(isPlaying == -2):
-            item = xbmcgui.ListItem("Not Running")
+            item = xbmcgui.ListItem(utils.getString(30024))
             ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url="%s?%s" % (sys.argv[0],"mode=0"),listitem=item,isFolder=False)
         elif(isPlaying == -1):
-            item = xbmcgui.ListItem("Not Playing")
+            item = xbmcgui.ListItem(utils.getString(30025))
             ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url="%s?%s" % (sys.argv[0],"mode=0"),listitem=item,isFolder=False)
         else:
             #get properties on the currently playing file
@@ -72,7 +72,7 @@ class SendGui:
                 itemLabel = aItem['label']
 
                 if(index == fileProps['position']):
-                    itemLabel = "*Playing* " + itemLabel
+                    itemLabel = "*" + utils.getString(30026) + "* " + itemLabel
                     
                 item = xbmcgui.ListItem(itemLabel)
                 ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url="%s?%s" % (sys.argv[0],"mode=1004&host=" + params['host'] + "&item=" + str(index)),listitem=item,isFolder=False)
@@ -86,9 +86,9 @@ class SendGui:
         port = None
         
         #get the name, address, and port
-        name = self._getInput("Host Name")
-        address = self._getInput("Host Address")
-        port = self._getInput("Host Port")
+        name = self._getInput(utils.getString(30027))
+        address = self._getInput(utils.getString(30028))
+        port = self._getInput(utils.getString(30029))
 
         if(name != None and address != None and port != None):
             aHost = XbmcHost(name,address,int(port))
@@ -104,12 +104,13 @@ class SendGui:
         host = int(params['host'])
         selectedItem = int(params['item'])
         
-        action = xbmcgui.Dialog().select("Choose Action",("Transfer now playing","Start playing this file","Copy playlist, start here","Stop Playback"))
+        action = xbmcgui.Dialog().select(utils.getString(30030),(utils.getString(30031),utils.getString(30032),utils.getString(30033),utils.getString(30034)))
 
         remote_host = self.host_manager.getHost(host)
         if(action == 0):
             #do a reverse SendTo
             SendTo().reverse(remote_host)
+            xbmc.executebuiltin('Container.Refresh')
         elif(action == 1):
             #start playing only this file
             playingFiles = remote_host.getPlaylist()
@@ -134,7 +135,7 @@ class SendGui:
     def sendNotification(self):
         remote_host = self.host_manager.getHost(int(params['host']))
 
-        message = self._getInput("Send Notification to " + remote_host.name)
+        message = self._getInput(utils.getString(30035) + " " + remote_host.name)
         remote_host.sendNotification(message)
 
     def _getInput(self,title):

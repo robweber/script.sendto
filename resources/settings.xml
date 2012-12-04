@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <settings>
 	<category id="onsend" label="On Send">
-		<setting id="override_destination" type="bool" label="Send if destination in use" default="true" />
-		<setting id="pause_prompt" type="bool" label="Prompt to pause destination" default="false"  />
-		<setting id="notification_title" type="text" label="Title for notifications" default="SendTo Notification" />
+		<setting id="override_destination" type="bool" label="30001" default="true" />
+		<setting id="pause_prompt" type="bool" label="30002" default="false"  />
+		<setting id="notification_title" type="text" label="30003" default="SendTo Notification" />
 	</category>
 </settings>

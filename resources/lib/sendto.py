@@ -21,7 +21,7 @@ class SendTo:
         #check if there is even a file playing
         if(self.localPlayer.isPlaying()):
             #figure out what xbmc to send to
-            selected_xbmc = xbmcgui.Dialog().select("Select instance",self.host_manager.listHosts())
+            selected_xbmc = xbmcgui.Dialog().select(utils.getString(30036),self.host_manager.listHosts())
 
             if(selected_xbmc != -1):
                 #create a local host
@@ -40,11 +40,11 @@ class SendTo:
                  
                 elif(remote_player >= 0 and utils.getSetting("override_destination") == "false"):
                     #we can't stop the player, notify the user
-                    xbmcgui.Dialog().ok("SendTo",remote_host.name + " is in use","Programs settings do not allow override")
+                    xbmcgui.Dialog().ok("SendTo",remote_host.name + " " + utils.getString(30039),utils.getString(30037))
 
                 elif(remote_player == -2):
                     #catch for if the player is off
-                    xbmcgui.Dialog().ok("SendTo",remote_host.name + " is not running","Please turn on XBMC before sending media")
+                    xbmcgui.Dialog().ok("SendTo",remote_host.name + " " + utils.getString(30040),utils.getString(30038))
                     
                 else:
                     #not playing anything, send as normal
