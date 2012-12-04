@@ -84,12 +84,17 @@ class SendTo:
         #seek to the correct spot
         remote_host.seekFile(player_props['percentage'],playerid)
 
+        #check if we should prompt to keep playback paused
+        keep_playing = True
+        if(utils.getSetting("pause_prompt") == "true"):
+            keep_playing = not xbmcgui.Dialog().yesno(utils.getString(30000),"Pause Playback on Destination")
+
         #stop the current player
         local_host.stop(playerid)
         local_host.executeJSON('Playlist.Clear','{"playlistid": ' + playerid + '}')
-
-        #unpause playback, if necessary
-        if(utils.getSetting("pause_destination") == "false"):
+            
+        if(keep_playing):
+            #unpause
             self.pausePlayback(remote_host)
 
     def pausePlayback(self,host):
