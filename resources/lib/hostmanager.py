@@ -61,14 +61,14 @@ class XbmcHost:
     def addItems(self,items,playerid):
 
         #first clear the current playlist
-        self.executeJSON('Playlist.Clear','{"playlistid": ' + playerid + '}')
+        self.executeJSON('Playlist.Clear','{"playlistid": ' + str(playerid) + '}')
 
         for aFile in items:
-            self.executeJSON('Playlist.Add','{"playlistid":' + playerid + ',"item": {"file": "' + aFile['file'] + '" } }')
+            self.executeJSON('Playlist.Add','{"playlistid":' + str(playerid) + ',"item": {"file": "' + aFile['file'] + '" } }')
         
     def playPosition(self,position,playerid):
         #play the item at a given position in the playlist
-        self.executeJSON("Player.Open",'{"item": { "playlistid": ' + playerid + ',"position":' + position + ' } }')
+        self.executeJSON("Player.Open",'{"item": { "playlistid": ' + str(playerid) + ',"position":' + str(position) + ' } }')
 
     def playFile(self,aFile,resume=0):
         #play a specific file, resume if sent

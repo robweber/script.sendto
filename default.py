@@ -73,7 +73,7 @@ class SendGui:
                     itemLabel = "*Playing* " + itemLabel
                     
                 item = xbmcgui.ListItem(itemLabel)
-                ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url="%s?%s" % (sys.argv[0],"mode=1004&host=" + params['host']),listitem=item,isFolder=False)
+                ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url="%s?%s" % (sys.argv[0],"mode=1004&host=" + params['host'] + "&item=" + str(index)),listitem=item,isFolder=False)
                 index = index + 1
         
         xbmcplugin.endOfDirectory(int(sys.argv[1]),cacheToDisc=False)
@@ -100,22 +100,34 @@ class SendGui:
 
     def pullMedia(self):
         host = int(params['host'])
+        selectedItem = int(params['item'])
+        
+        action = xbmcgui.Dialog().select("Choose Action",("Transfer now playing","Start playing this file","Copy playlist, start here","Stop Playback"))
 
-        action = xbmcgui.Dialog().select("Choose Action",("Pull now playing","Start playing this file","Copy playlist, start here","Stop Playback"))
-
+        remote_host = self.host_manager.getHost(host)
         if(action == 0):
             #do a reverse SendTo
-            remote_host = self.host_manager.getHost(host)
             SendTo().reverse(remote_host)
         elif(action == 1):
             #start playing only this file
-            pass
+            playingFiles = remote_host.getPlaylist()
+            local_host = XbmcHost('Local','127.0.0.1','80')
+            local_host.playFile(playingFiles[selectedItem]['file'])
         elif(action == 2):
             #pull the whole list but start at this index
-            pass
+            playerid = remote_host.isPlaying()
+            playingFiles = remote_host.getPlaylist()
+            
+            local_host = XbmcHost('Local','127.0.0.1','80')
+
+            #send the playerid so we add to the right playlist
+            local_host.addItems(playingFiles,playerid)
+            local_host.playPosition(selectedItem,playerid)
+            
         elif(action == 3):
             #just stop the playing media on this machine
-            pass
+            remote_host.stop()
+            xbmc.executebuiltin('Container.Refresh')
 
     def _getInput(self,title):
         result = None
