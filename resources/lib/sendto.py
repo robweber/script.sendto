@@ -62,7 +62,7 @@ class SendTo:
         playerid = str(local_host.isPlaying())
            
         #get the percentage played and position
-        player_props = local_host.executeJSON("Player.GetProperties",'{"playerid":' + playerid + ', "properties":["percentage","position","speed"]}')
+        player_props = local_host.playingProperties(playerid)
 
         #check if the player is currently paused
         if(player_props['speed'] != 0):
@@ -70,24 +70,22 @@ class SendTo:
             self.pausePlayback(local_host)
         
         #get a list of all items in the playlist
-        playlist = local_host.executeJSON("Playlist.GetItems",'{"playlistid":' + playerid + ',"properties":["file","title"]}')
+        playlist = local_host.getPlaylist(playerid)
 
         #add these files to the other playlist
-        remote_host.executeJSON('Playlist.Clear','{"playlistid": ' + playerid + '}')
-        for aFile in playlist['items']:
-            remote_host.executeJSON('Playlist.Add','{"playlistid":' + playerid + ',"item": {"file": "' + aFile['file'] + '" } }')
+        remote_host.addItems(playlist,playerid)
 
         #play remote playlist
-        remote_host.executeJSON("Player.Open",'{"item": { "playlistid": ' + playerid + ',"position":' + str(player_props['position']) + ' } }')
+        remote_host.playPosition(str(player_props['position']),playerid)
 
         #pause the player
         self.pausePlayback(remote_host)
 
         #seek to the correct spot
-        remote_host.executeJSON("Player.Seek",'{"playerid":' + playerid + ', "value":' + str(player_props['percentage']) + '}')
+        remote_host.seekFile(player_props['percentage'],playerid)
 
         #stop the current player
-        local_host.executeJSON('Player.Stop','{"playerid":' + playerid + '}')
+        local_host.stop(playerid)
         local_host.executeJSON('Playlist.Clear','{"playlistid": ' + playerid + '}')
 
         #unpause playback, if necessary

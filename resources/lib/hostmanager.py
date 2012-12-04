@@ -35,9 +35,11 @@ class XbmcHost:
     def isPlaying(self):
         return self._getPlayerId()
 
-    def getPlaylist(self):
+    def getPlaylist(self,playerid = None):
         result = {}
-        playerid = self._getPlayerId()
+
+        if(playerid == None):
+            playerid = self._getPlayerId()
 
         if(playerid >= 0):
             items = self.executeJSON("Playlist.GetItems",'{"playlistid":' + str(playerid) + ',"properties":["file","title"]}')
@@ -45,17 +47,49 @@ class XbmcHost:
 
         return result
 
-    def playingProperties(self):
+    def playingProperties(self,playerid=None):
         result = {}
 
-        playerid = self._getPlayerId()
+        if(playerid == None):
+            playerid = self._getPlayerId()
 
         if(playerid >= 0):
             result = self.executeJSON("Player.GetProperties",'{"playerid":' + str(playerid) + ', "properties":["percentage","position","speed"]}')
 
         return result
 
+    def addItems(self,items,playerid):
+
+        #first clear the current playlist
+        self.executeJSON('Playlist.Clear','{"playlistid": ' + playerid + '}')
+
+        for aFile in items:
+            self.executeJSON('Playlist.Add','{"playlistid":' + playerid + ',"item": {"file": "' + aFile['file'] + '" } }')
+        
+    def playPosition(self,position,playerid):
+        #play the item at a given position in the playlist
+        self.executeJSON("Player.Open",'{"item": { "playlistid": ' + playerid + ',"position":' + position + ' } }')
+
+    def playFile(self,aFile,resume=0):
+        #play a specific file, resume if sent
+        self.executeJSON("Player.Open",'{"item": {"file":"' + aFile + '"},"options":{"resume":' + str(resume) + '}}')
+
+    def seekFile(self,percent,playerid=None):
+        if(playerid == None):
+            playerid = self._getPlayerId()
+
+        #seek to this point in the file
+        self.executeJSON("Player.Seek",'{"playerid":' + str(playerid) + ', "value":' + str(percent) + '}')
+
+    def stop(self,playerid=None):
+        if(playerid == None):
+            playerid = self._getPlayerId()
+
+        #stop the player
+        self.executeJSON('Player.Stop','{"playerid":' + str(playerid) + '}')
+    
     def _getPlayerId(self):
+        utils.log("Finding playerid")
         #check if this player is actively playing something
         check_playing = self.executeJSON('Player.GetActivePlayers','{}')
         

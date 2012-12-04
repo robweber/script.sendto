@@ -101,7 +101,7 @@ class SendGui:
     def pullMedia(self):
         host = int(params['host'])
 
-        action = xbmcgui.Dialog().select("Choose Action",("Move to this host","Pull only this file","Pull playlist, start here"))
+        action = xbmcgui.Dialog().select("Choose Action",("Pull now playing","Start playing this file","Copy playlist, start here","Stop Playback"))
 
         if(action == 0):
             #do a reverse SendTo
@@ -112,6 +112,9 @@ class SendGui:
             pass
         elif(action == 2):
             #pull the whole list but start at this index
+            pass
+        elif(action == 3):
+            #just stop the playing media on this machine
             pass
 
     def _getInput(self,title):
