@@ -27,6 +27,8 @@ class SendGui:
             self.removeHost()
         elif(mode == 1004):
             self.pullMedia()
+        elif(mode == 1005):
+            self.sendNotification()
             
     def listHosts(self):
         context_url = "%s?%s"
@@ -36,7 +38,7 @@ class SendGui:
             index = 0
             for aHost in self.host_manager.hosts:
                 item = xbmcgui.ListItem(aHost.name,aHost.address)
-                item.addContextMenuItems([("Add Host", "Xbmc.RunPlugin(%s?%s)" % (sys.argv[0],"mode=1002")),("Remove Host", "Xbmc.RunPlugin(%s?%s)" % (sys.argv[0],'mode=1003&host=' + str(index)))])
+                item.addContextMenuItems([("Send Notification","Xbmc.RunPlugin(%s?%s)" % (sys.argv[0],"mode=1005&host=" + str(index))),("Add Host", "Xbmc.RunPlugin(%s?%s)" % (sys.argv[0],"mode=1002")),("Remove Host", "Xbmc.RunPlugin(%s?%s)" % (sys.argv[0],'mode=1003&host=' + str(index)))])
                 ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=context_url % (sys.argv[0],"mode=1001&host=" + str(index)),listitem=item,isFolder=True)
                 index = index + 1
         else:
@@ -128,6 +130,12 @@ class SendGui:
             #just stop the playing media on this machine
             remote_host.stop()
             xbmc.executebuiltin('Container.Refresh')
+
+    def sendNotification(self):
+        remote_host = self.host_manager.getHost(int(params['host']))
+
+        message = self._getInput("Send Notification to " + remote_host.name)
+        remote_host.sendNotification(message)
 
     def _getInput(self,title):
         result = None

@@ -87,6 +87,9 @@ class XbmcHost:
 
         #stop the player
         self.executeJSON('Player.Stop','{"playerid":' + str(playerid) + '}')
+
+    def sendNotification(self,message):
+        self.executeJSON('GUI.ShowNotification','{"title":"' + utils.getSetting("notification_title") + '","message":"' + message + '"}')
     
     def _getPlayerId(self):
         utils.log("Finding playerid")

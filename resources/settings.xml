@@ -2,9 +2,7 @@
 <settings>
 	<category id="onsend" label="On Send">
 		<setting id="override_destination" type="bool" label="Send if destination in use" default="true" />
-		<setting id="pause_destination" type="bool" label="Pause Destination" default="false"  />
-	</category>
-	<category id="onpull" label="On Pull">
-		<setting id="stop_prompt" type="bool" label="Prompt to stop media on host" default="true" />
+		<setting id="pause_prompt" type="bool" label="Prompt to pause destination" default="false"  />
+		<setting id="notification_title" type="text" label="Title for notifications" default="SendTo Notification" />
 	</category>
 </settings>
