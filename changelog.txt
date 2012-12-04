@@ -1,3 +1,11 @@
+Version 0.0.5
+
+finished gui actions
+
+added send notification 
+
+implemented all addon settings to work correctly
+
 Version 0.0.4
 
 revamped "remote override" settings check

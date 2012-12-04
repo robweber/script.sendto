@@ -27,4 +27,5 @@
 	<string id="30038">Please turn on XBMC before sending media</string>
 	<string id="30039">is in use</string>
 	<string id="30040">is not running</string>
+	<string id="30041">Pause playback on destination</string>
 </strings>

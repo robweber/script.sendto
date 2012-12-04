@@ -34,8 +34,8 @@ class SendTo:
                 remote_player = remote_host.isPlaying()
 
                 if(remote_player >= 0 and utils.getSetting("override_destination") == 'true'):
-                    #we need to stop the player before sending the new file
-                     remote_host.executeJSON('Player.Stop','{"playerid":' + str(remote_player) + '}')
+                     #we need to stop the player before sending the new file
+                     remote_host.stop()
                      self.sendTo(local_host,remote_host)
                  
                 elif(remote_player >= 0 and utils.getSetting("override_destination") == "false"):
@@ -54,9 +54,9 @@ class SendTo:
         #do a regular "sendto" but reverse the local and remote hosts
         local_host = XbmcHost("Local","127.0.0.1","8080")
 
-        self.sendTo(remote_host,local_host)
+        self.sendTo(remote_host,local_host,True)
     
-    def sendTo(self,local_host,remote_host):
+    def sendTo(self,local_host,remote_host,reverse=False):
         
         #get the player/playlist id
         playerid = str(local_host.isPlaying())
@@ -68,6 +68,13 @@ class SendTo:
         if(player_props['speed'] != 0):
             #pause the playing file
             self.pausePlayback(local_host)
+
+        #if reverse these checks don't matter
+        keep_playing = True
+        if(not reverse):
+            #check if we should prompt to keep playback paused
+            if(utils.getSetting("pause_prompt") == "true"):
+                keep_playing = not xbmcgui.Dialog().yesno(utils.getString(30000),utils.getString(30041))
         
         #get a list of all items in the playlist
         playlist = local_host.getPlaylist(playerid)
@@ -83,11 +90,6 @@ class SendTo:
 
         #seek to the correct spot
         remote_host.seekFile(player_props['percentage'],playerid)
-
-        #check if we should prompt to keep playback paused
-        keep_playing = True
-        if(utils.getSetting("pause_prompt") == "true"):
-            keep_playing = not xbmcgui.Dialog().yesno(utils.getString(30000),"Pause Playback on Destination")
 
         #stop the current player
         local_host.stop(playerid)
