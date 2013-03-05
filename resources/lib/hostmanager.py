@@ -18,7 +18,12 @@ class XbmcHost:
 
         #figure out what kind of comms for this host
         hostname = socket.gethostname()
-        host_address = socket.gethostbyname(hostname)
+        host_address = ''
+        try:
+            host_address = socket.gethostbyname(hostname)
+        except:
+            #do nothing here, we'll just use a blank string
+            pass
 
         if(self.address == '127.0.0.1' or self.address == hostname or self.address == host_address):
             #we have a 'local' host
