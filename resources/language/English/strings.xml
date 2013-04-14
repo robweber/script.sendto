@@ -4,10 +4,7 @@
 	<string id="30001">Send if destination in use</string>
 	<string id="30002">Prompt to pause destination</string>
 	<string id="30003">Title for notifications</string>
-	<string id="30004">Local Username</string>
-	<string id="30005">Local Password</string>
-	<string id="30006">Local Port</string>
-	
+
 	<!-- gui information -->
 	<string id="30020">Send Notification</string>
 	<string id="30021">Add Host</string>

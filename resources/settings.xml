@@ -4,9 +4,5 @@
 		<setting id="override_destination" type="bool" label="30001" default="true" />
 		<setting id="pause_prompt" type="bool" label="30002" default="false"  />
 		<setting id="notification_title" type="text" label="30003" default="SendTo Notification" />
-		<setting id="local_host_user" type="text" label="30004" default="" />
-		<setting id="local_host_password" type="text" option="hidden" label="30005" default="" />
-		<setting id="local_host_port" type="number" label="30006" default="" />
-		
 	</category>
 </settings>
