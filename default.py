@@ -29,6 +29,11 @@ class SendGui:
             self.pullMedia()
         elif(mode == 1005):
             self.sendNotification()
+        elif(mode == 1100):
+            #create a local and remote host
+            local_host = XbmcHost('Local','127.0.0.1','80','','')
+            remote_host = XbmcHost('Remote',str(params['address']),str(params['port']),str(params['username']),str(params['password']))
+            SendTo().sendTo(local_host,remote_host)
             
     def listHosts(self):
         context_url = "%s?%s"
@@ -175,6 +180,7 @@ except:
     pass
 
 if mode == 1000:
+    #start the choosing process
     SendTo().run()
 else:
     #display gui
