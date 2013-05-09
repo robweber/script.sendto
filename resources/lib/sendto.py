@@ -25,7 +25,7 @@ class SendTo:
 
             if(selected_xbmc != -1):
                 #create a local host
-                local_host = XbmcHost("Local","127.0.0.1","8080")
+                local_host = XbmcHost("Local","127.0.0.1",utils.getSetting("local_host_port"),utils.getSetting("local_host_user"),utils.getSetting("local_host_password"))
                 
                 #get the address of the host
                 remote_host = self.host_manager.getHost(selected_xbmc)
@@ -52,7 +52,7 @@ class SendTo:
 
     def reverse(self,remote_host):
         #do a regular "sendto" but reverse the local and remote hosts
-        local_host = XbmcHost("Local","127.0.0.1","8080")
+        local_host = XbmcHost("Local","127.0.0.1","8080","","")
 
         self.sendTo(remote_host,local_host,True)
     

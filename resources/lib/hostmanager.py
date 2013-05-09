@@ -9,12 +9,16 @@ class XbmcHost:
     name = ''
     address = ''
     port = 80
+    user = ''
+    password = ''
     jsonComm = None
     
-    def __init__(self,name,address,port):
+    def __init__(self,name,address,port,user,password):
         self.name = name
         self.address = address
         self.port = port
+        self.user = user
+        self.password = password
 
         #figure out what kind of comms for this host
         hostname = socket.gethostname()
@@ -29,7 +33,7 @@ class XbmcHost:
             #we have a 'local' host
             self.jsonComm = LocalComms()
         else:
-            self.jsonComm = RemoteComms(self.address,self.port)
+            self.jsonComm = RemoteComms(self.address,self.port,self.user,self.password)
 
     def executeJSON(self,query,params):
         if(self.jsonComm != None):
@@ -149,6 +153,8 @@ class HostManager:
                 newChild.setAttribute("name",str(aHost.name))
                 newChild.setAttribute("address",str(aHost.address))
                 newChild.setAttribute("port",str(aHost.port))
+                newChild.setAttribute("user",str(aHost.user))
+                newChild.setAttribute("password",str(aHost.password))
                 rootNode.appendChild(newChild)
 
             doc.appendChild(rootNode)
@@ -171,7 +177,7 @@ class HostManager:
             doc = xml.dom.minidom.parse(xbmc.translatePath(data_dir + "hosts.xml"))
 
             for node in doc.getElementsByTagName("host"):
-                self.hosts.append(XbmcHost(str(node.getAttribute("name")),str(node.getAttribute("address")),int(node.getAttribute("port"))))
+                self.hosts.append(XbmcHost(str(node.getAttribute("name")),str(node.getAttribute("address")),int(node.getAttribute("port")),str(node.getAttribute("user")),str(node.getAttribute("password"))))
 
             #sort the lists
             self._sort()

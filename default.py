@@ -84,14 +84,18 @@ class SendGui:
         name = None
         address = None
         port = None
+        user = None
+        password = None
         
         #get the name, address, and port
         name = self._getInput(utils.getString(30027))
         address = self._getInput(utils.getString(30028))
         port = self._getInput(utils.getString(30029))
+        user = self._getInput(utils.getString(30042))
+        password = self._getInput(utils.getString(30043))
 
         if(name != None and address != None and port != None):
-            aHost = XbmcHost(name,address,int(port))
+            aHost = XbmcHost(name,address,int(port),user,password)
             self.host_manager.addHost(aHost)
             xbmc.executebuiltin('Container.Refresh')
 
@@ -114,14 +118,14 @@ class SendGui:
         elif(action == 1):
             #start playing only this file
             playingFiles = remote_host.getPlaylist()
-            local_host = XbmcHost('Local','127.0.0.1','80')
+            local_host = XbmcHost('Local','127.0.0.1','80','','')
             local_host.playFile(playingFiles[selectedItem]['file'])
         elif(action == 2):
             #pull the whole list but start at this index
             playerid = remote_host.isPlaying()
             playingFiles = remote_host.getPlaylist()
             
-            local_host = XbmcHost('Local','127.0.0.1','80')
+            local_host = XbmcHost('Local','127.0.0.1','80','','')
 
             #send the playerid so we add to the right playlist
             local_host.addItems(playingFiles,playerid)

@@ -2,6 +2,7 @@ import xbmc
 import utils
 import json
 import urllib2
+import base64
 
 class CommsManager:
 
@@ -25,10 +26,14 @@ class LocalComms(CommsManager):
 class RemoteComms(CommsManager):
     address = None
     port = 80
+    user = None
+    password = None
     
-    def __init__(self,address,port):
+    def __init__(self,address,port,user,password):
         self.address = address
         self.port = port
+        self.user = user
+        self.password = password
         
     def executeJSON(self,query,params):
         result = None
@@ -36,7 +41,12 @@ class RemoteComms(CommsManager):
         data = '{ "jsonrpc" : "2.0" , "method" : "' + query + '" , "params" : ' + params + ' , "id":1 }'
         clen = len(data)
         utils.log(data,xbmc.LOGDEBUG)
-        req = urllib2.Request("http://" + self.address + ":" + str(self.port) + "/jsonrpc", data, {'Content-Type': 'application/json', 'Content-Length': clen})
+        hostdetails = "http://" + self.address + ":" + str(self.port) + "/jsonrpc"
+        req = urllib2.Request(hostdetails, data, {'Content-Type': 'application/json', 'Content-Length': clen})
+        if self.password != '':
+            base64string = base64.encodestring('%s:%s' % (self.user, self.password))[:-1]
+            authheader =  "Basic %s" % base64string
+            req.add_header("Authorization", authheader)		
         try:
             f = urllib2.urlopen(req)
             response = json.loads(f.read())

@@ -1,3 +1,9 @@
+Version 0.0.7
+
+added support for username/password on remote XBMC hosts
+
+added settings for local username/password/port
+
 Version 0.0.6
 
 added try/except block for gethostbyname() python call
