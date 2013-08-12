@@ -3,6 +3,7 @@
 	<category id="onsend" label="On Send">
 		<setting id="override_destination" type="bool" label="30001" default="true" />
 		<setting id="pause_prompt" type="bool" label="30002" default="false"  />
+		<setting id="continue_host_on_transfer" type="bool" label="30004" default="false" />
 		<setting id="notification_title" type="text" label="30003" default="SendTo Notification" />
 	</category>
 </settings>

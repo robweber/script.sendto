@@ -4,6 +4,7 @@
 	<string id="30001">Send if destination in use</string>
 	<string id="30002">Prompt to pause destination</string>
 	<string id="30003">Title for notifications</string>
+	<string id="30004">Keep host playing on transfer</string>
 
 	<!-- gui information -->
 	<string id="30020">Send Notification</string>

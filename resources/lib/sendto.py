@@ -91,9 +91,13 @@ class SendTo:
         #seek to the correct spot
         remote_host.seekFile(player_props['percentage'],playerid)
 
-        #stop the current player
-        local_host.stop(playerid)
-        local_host.executeJSON('Playlist.Clear','{"playlistid": ' + playerid + '}')
+        if(utils.getSetting('continue_host_on_transfer') == 'false'):
+            #stop the current player
+            local_host.stop(playerid)
+            local_host.executeJSON('Playlist.Clear','{"playlistid": ' + playerid + '}')
+        else:
+            #continue playing
+            self.pausePlayback(local_host)
             
         if(keep_playing):
             #unpause
