@@ -1,3 +1,9 @@
+Version 0.0.8
+
+added "continue on transfer" setting
+
+copy playlist now resumes from seek point instead of 0:00
+
 Version 0.0.7
 
 added support for username/password on remote XBMC hosts

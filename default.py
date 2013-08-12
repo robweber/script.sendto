@@ -124,12 +124,17 @@ class SendGui:
             #pull the whole list but start at this index
             playerid = remote_host.isPlaying()
             playingFiles = remote_host.getPlaylist()
+            player_props = remote_host.playingProperties(playerid)
             
             local_host = XbmcHost('Local','127.0.0.1','80','','')
 
             #send the playerid so we add to the right playlist
             local_host.addItems(playingFiles,playerid)
             local_host.playPosition(selectedItem,playerid)
+
+            #give it a second to catch up
+            xbmc.sleep(1000)
+            local_host.seekFile(player_props['percentage'],playerid)
             
         elif(action == 3):
             #just stop the playing media on this machine
