@@ -1,3 +1,7 @@
+Version 0.0.9
+
+python bump for Frodo/Gotham
+
 Version 0.0.8
 
 added "continue on transfer" setting
