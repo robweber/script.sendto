@@ -88,11 +88,11 @@ class SendGui:
         password = None
         
         #get the name, address, and port
-        name = self._getInput(utils.getString(30027))
-        address = self._getInput(utils.getString(30028))
-        port = self._getInput(utils.getString(30029))
-        user = self._getInput(utils.getString(30042))
-        password = self._getInput(utils.getString(30043))
+        name = xbmcgui.Dialog().input(utils.getString(30027),'',xbmcgui.INPUT_ALPHANUM)
+        address = xbmcgui.Dialog().input(utils.getString(30028),'',xbmcgui.INPUT_IPADDRESS)
+        port = xbmcgui.Dialog().input(utils.getString(30029),'',xbmcgui.INPUT_NUMERIC)
+        user = xbmcgui.Dialog().input(utils.getString(30042),'',xbmcgui.INPUT_ALPHANUM)
+        password = xbmcgui.Dialog().input(utils.getString(30043),'',xbmcgui.INPUT_ALPHANUM)
 
         if(name != None and address != None and port != None):
             aHost = XbmcHost(name,address,int(port),user,password)
@@ -144,19 +144,8 @@ class SendGui:
     def sendNotification(self):
         remote_host = self.host_manager.getHost(int(params['host']))
 
-        message = self._getInput(utils.getString(30035) + " " + remote_host.name)
+        message = xbmcgui.Dialog().input(utils.getString(30035) + " " + remote_host.name,'',xbmcgui.INPUT_ALPHANUM)
         remote_host.sendNotification(message)
-
-    def _getInput(self,title):
-        result = None
-        keyboard = xbmc.Keyboard("",title)
-        keyboard.doModal()
-
-        if(keyboard.isConfirmed()):
-            result = keyboard.getText()
-
-        return result
-            
         
 def get_params():
     param = {}
