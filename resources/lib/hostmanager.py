@@ -131,6 +131,11 @@ class HostManager:
     def getHost(self,index):
         return self.hosts[index]
 
+    def getHostByName(self,hostname):
+        allHosts = self.listHosts()
+        
+        return allHosts.index(hostname)
+
     def addHost(self,aHost):
         self.hosts.append(aHost)
         self._sort()

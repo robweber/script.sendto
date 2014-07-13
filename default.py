@@ -169,7 +169,7 @@ except:
     pass
 
 if mode == 1000:
-    SendTo().run()
+    SendTo().run(params)
 else:
     #display gui
     SendGui(params).run()

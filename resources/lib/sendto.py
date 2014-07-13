@@ -16,12 +16,17 @@ class SendTo:
        
         self.localPlayer = xbmc.Player()
         
-    def run(self):
+    def run(self,params):
         
         #check if there is even a file playing
         if(self.localPlayer.isPlaying()):
-            #figure out what xbmc to send to
-            selected_xbmc = xbmcgui.Dialog().select(utils.getString(30036),self.host_manager.listHosts())
+            
+            selected_xbmc = -1
+            if('host' in params):
+                selected_xbmc = self.host_manager.getHostByName(params['host'])
+            else:
+                #figure out what xbmc to send to
+                selected_xbmc = xbmcgui.Dialog().select(utils.getString(30036),self.host_manager.listHosts())
 
             if(selected_xbmc != -1):
                 #create a local host
