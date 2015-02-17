@@ -45,14 +45,20 @@ class XbmcHost:
         return self._getPlayerId()
 
     def getPlaylist(self,playerid = None):
-        result = {}
+        result = []
 
         if(playerid == None):
             playerid = self._getPlayerId()
 
         if(playerid >= 0):
-            items = self.executeJSON("Playlist.GetItems",'{"playlistid":' + str(playerid) + ',"properties":["file","title"]}')
-            result = items['items']
+
+            if(playerid == 1):
+                #playing video only one item
+                items = self.executeJSON("Player.GetItem",'{"playerid":' + str(playerid) + ',"properties":["file","title"]}')
+                result.append(items['item'])
+            else:
+                items = self.executeJSON("Playlist.GetItems",'{"playlistid":' + str(playerid) + ',"properties":["file","title"]}')
+                result = items['items']
 
         return result
 
